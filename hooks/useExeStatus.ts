@@ -28,33 +28,35 @@ export function useExeStatus() {
       let error = null
 
       try {
-        console.log('[ExeStatus] 📤 Enviando request para localhost:9999...')
+        console.log('[ExeStatus] 📤 Enviando request para localhost:9999/api/status...')
         
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 segundo timeout
+        const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 segundo timeout
         
-        const response = await fetch(`http://localhost:9999/api/status?t=${Date.now()}`, {
+        const response = await fetch(`http://localhost:9999/api/status`, {
           method: 'GET',
           signal: controller.signal,
           headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache'
-          }
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          cache: 'no-store'
         })
         
         clearTimeout(timeoutId)
         
-        console.log('[ExeStatus] 📬 Resposta recebida:', response.status, response.statusText)
+        console.log('[ExeStatus] 📬 Resposta recebida:', response.status, response.statusText, 'Headers:', response.headers.get('content-type'))
         
         // ONLINE = resposta 200
         if (response.status === 200 && response.ok) {
           try {
-            const data = await response.json()
-            console.log('[ExeStatus] ✅ ONLINE - Data:', data)
+            const text = await response.text()
+            console.log('[ExeStatus] Response body:', text)
             isOnline = true
           } catch (e) {
-            // Mesmo que JSON falhe, status 200 = online
-            console.log('[ExeStatus] ✅ ONLINE - Mas JSON inválido (ok, status 200)')
+            // Mesmo que text falhe, status 200 = online
+            console.log('[ExeStatus] ✅ ONLINE - Status 200 OK')
             isOnline = true
           }
         } else {
@@ -63,7 +65,7 @@ export function useExeStatus() {
         }
       } catch (err) {
         error = (err as any).message
-        console.log('[ExeStatus] ❌ OFFLINE - Erro na requisição:', error)
+        console.log('[ExeStatus] ❌ OFFLINE - Erro na requisição:', error, '(Tipo:', (err as any).name, ')')
         isOnline = false
       }
 
@@ -77,9 +79,9 @@ export function useExeStatus() {
         
         // Log visual no console
         if (isOnline) {
-          console.log('[ExeStatus] 🟢 Status: ONLINE')
+          console.log('[ExeStatus] 🟢 Status ONLINE')
         } else {
-          console.log('[ExeStatus] 🔴 Status: OFFLINE')
+          console.log('[ExeStatus] 🔴 Status OFFLINE')
         }
       }
     }
