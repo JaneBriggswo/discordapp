@@ -42,7 +42,7 @@ export function useExeStatus() {
         
         if (isMountedRef.current) {
           const isOnline = response.ok && response.status === 200
-          console.log('[ExeStatus] Check result:', isOnline ? '✅ Online' : '❌ Offline')
+          console.log('[ExeStatus] Check result:', isOnline ? '✅ ONLINE' : '❌ OFFLINE', 'Status:', response.status)
           setStatus({
             isOnline,
             isLoading: false,
@@ -50,7 +50,7 @@ export function useExeStatus() {
           })
         }
       } catch (error) {
-        console.log('[ExeStatus] Connection error:', (error as any).message)
+        console.log('[ExeStatus] Connection error:', (error as any).message, '- Staying OFFLINE')
         if (isMountedRef.current) {
           setStatus(prev => ({
             isOnline: false,

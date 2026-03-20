@@ -250,8 +250,15 @@ export function useBypass() {
   const getFeatureStatus = useCallback(async (featureName: string) => {
     try {
       setIsLoading(true)
+      
+      if (!isConnected) {
+        throw new Error('Servidor OFFLINE! Abra o LoaderBaseDX11.exe no seu PC')
+      }
 
-      const response = await fetch(`/api/bypass?action=featurestatus&name=${featureName}`)
+      const response = await fetch(`${bypassServerUrl}/api/features/status`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      })
       const data: BypassResponse = await response.json()
 
       if (!response.ok || !data.success) {
@@ -265,7 +272,7 @@ export function useBypass() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [isConnected, bypassServerUrl])
 
   return {
     isConnected,
