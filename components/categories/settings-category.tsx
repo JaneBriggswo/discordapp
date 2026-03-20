@@ -22,8 +22,8 @@ export function SettingsCategory() {
     })
     
     try {
-      // Envia comando para fechar o .exe
-      const response = await fetch('/api/protected/shutdown', {
+      // Envia comando direto para o .exe
+      const response = await fetch('http://localhost:9999/api/shutdown', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

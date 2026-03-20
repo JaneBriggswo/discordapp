@@ -13,20 +13,29 @@ export function useBypass() {
   const [serverUrl, setServerUrl] = useState('http://localhost:9999')
   const { addNotification } = useNotifications()
 
-  // Auto-detect server URL on mount
+  // Auto-detect server URL on mount and check regularly
   useEffect(() => {
     const detectServer = async () => {
       // Try localhost first
       try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 second timeout
+        
         const response = await fetch('http://localhost:9999/api/status', {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal
         })
+        clearTimeout(timeoutId)
+        
         if (response.ok) {
+          console.log('[Bypass] ✅ Connected to localhost:9999')
           setServerUrl('http://localhost:9999')
-          return
+          setIsConnected(true)
+          return true
         }
       } catch (e) {
+        console.log('[Bypass] ❌ localhost:9999 not available:', (e as any).message)
         // localhost not available, will try to auto-discover
       }
 
@@ -37,24 +46,39 @@ export function useBypass() {
       
       if (envUrl && envUrl !== 'http://localhost:9999') {
         try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 2000)
+          
           const response = await fetch(`${envUrl}/api/status`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal
           })
+          clearTimeout(timeoutId)
+          
           if (response.ok) {
+            console.log('[Bypass] ✅ Connected to', envUrl)
             setServerUrl(envUrl)
-            return
+            setIsConnected(true)
+            return true
           }
         } catch (e) {
-          // env URL not available
+          console.log('[Bypass] ❌ env URL not available:', (e as any).message)
         }
       }
 
       // No server found - will show error when user tries to use feature
+      console.log('[Bypass] ⚠️ No server detected, staying offline')
       setServerUrl('http://localhost:9999')
+      setIsConnected(false)
+      return false
     }
 
     detectServer()
+    
+    // Check connection every 3 seconds
+    const interval = setInterval(detectServer, 3000)
+    return () => clearInterval(interval)
   }, [])
 
   const bypassServerUrl = serverUrl
@@ -65,17 +89,23 @@ export function useBypass() {
   const checkConnection = useCallback(async () => {
     try {
       setIsLoading(true)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 3000)
+      
       const response = await fetch(`${bypassServerUrl}/api/status`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal
       })
+      clearTimeout(timeoutId)
       
       if (response.ok) {
+        console.log('[Bypass] ✅ Connection check passed')
         setIsConnected(true)
         return true
       }
     } catch (error) {
-      console.error('Bypass connection error:', error)
+      console.error('[Bypass] ❌ Connection check failed:', error)
       setIsConnected(false)
       return false
     } finally {
@@ -91,10 +121,7 @@ export function useBypass() {
       setIsLoading(true)
       
       if (!isConnected) {
-        const connected = await checkConnection()
-        if (!connected) {
-          throw new Error('Pink Bypass não está conectado. Abra o .exe primeiro.')
-        }
+        throw new Error('Servidor OFFLINE! Abra o LoaderBaseDX11.exe no seu PC')
       }
 
       const response = await fetch(`${bypassServerUrl}/api/activate`, {
@@ -130,7 +157,7 @@ export function useBypass() {
     } finally {
       setIsLoading(false)
     }
-  }, [isConnected, checkConnection, addNotification])
+  }, [isConnected, bypassServerUrl, addNotification])
 
   /**
    * Desativa uma função
@@ -138,6 +165,10 @@ export function useBypass() {
   const deactivateFeature = useCallback(async (featureName: string) => {
     try {
       setIsLoading(true)
+      
+      if (!isConnected) {
+        throw new Error('Servidor OFFLINE! Abra o LoaderBaseDX11.exe no seu PC')
+      }
 
       const response = await fetch(`${bypassServerUrl}/api/deactivate`, {
         method: 'POST',
@@ -171,7 +202,7 @@ export function useBypass() {
     } finally {
       setIsLoading(false)
     }
-  }, [addNotification])
+  }, [isConnected, bypassServerUrl, addNotification])
 
   /**
    * Atualiza configuração de uma função
@@ -179,6 +210,10 @@ export function useBypass() {
   const updateConfig = useCallback(async (featureName: string, config: any) => {
     try {
       setIsLoading(true)
+      
+      if (!isConnected) {
+        throw new Error('Servidor OFFLINE! Abra o LoaderBaseDX11.exe no seu PC')
+      }
 
       const response = await fetch(`${bypassServerUrl}/api/configure`, {
         method: 'POST',
@@ -207,7 +242,7 @@ export function useBypass() {
     } finally {
       setIsLoading(false)
     }
-  }, [addNotification])
+  }, [isConnected, bypassServerUrl, addNotification])
 
   /**
    * Obtém status de uma função

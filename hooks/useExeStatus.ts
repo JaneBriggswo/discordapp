@@ -28,7 +28,8 @@ export function useExeStatus() {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 1500)
         
-        const response = await fetch(`/api/protected/status?t=${Date.now()}`, {
+        // Chama direto a API do .exe na porta 9999
+        const response = await fetch(`http://localhost:9999/api/status?t=${Date.now()}`, {
           method: 'GET',
           signal: controller.signal,
           headers: {
@@ -41,6 +42,7 @@ export function useExeStatus() {
         
         if (isMountedRef.current) {
           const isOnline = response.ok && response.status === 200
+          console.log('[ExeStatus] Check result:', isOnline ? '✅ Online' : '❌ Offline')
           setStatus({
             isOnline,
             isLoading: false,
@@ -48,6 +50,7 @@ export function useExeStatus() {
           })
         }
       } catch (error) {
+        console.log('[ExeStatus] Connection error:', (error as any).message)
         if (isMountedRef.current) {
           setStatus(prev => ({
             isOnline: false,
