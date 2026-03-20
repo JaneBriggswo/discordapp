@@ -9,7 +9,7 @@ export function EmulatorMonitor() {
   useEffect(() => {
     const handleEmulatorClosed = (event: any) => {
       addNotification({
-        type: 'warning',
+        type: 'info',
         title: '⚠️ HD-Player Fechado',
         message: 'Todas as configurações foram resetadas para o estado inicial'
       })

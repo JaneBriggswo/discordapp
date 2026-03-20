@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export interface ButtonProps
@@ -33,7 +32,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <motion.button
+      <button
         ref={ref}
         className={cn(
           baseClasses,
@@ -42,15 +41,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           loading && "cursor-not-allowed",
           className
         )}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
         {...props}
       >
         {loading && (
           <div className="w-4 h-4 mr-2 spinner" />
         )}
         {children}
-      </motion.button>
+      </button>
     )
   }
 )

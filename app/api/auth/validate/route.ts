@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Validate CSRF token
-    if (!SecurityManager.validateCSRFToken(csrf, csrfToken)) {
+    if (!csrfToken || !SecurityManager.validateCSRFToken(csrf, csrfToken)) {
       return NextResponse.json(
         { 
           success: false, 

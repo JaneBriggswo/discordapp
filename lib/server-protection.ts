@@ -29,9 +29,9 @@ export class ServerProtection {
           return { valid: false, error: 'Missing CSRF token' }
         }
         
-        const csrfValidation = SecurityManager.validateCSRFToken(csrfToken, validation.userId)
+        const csrfValidation = SecurityManager.validateCSRFToken(csrfToken, validation.sessionId || validation.discordId || '')
         
-        if (!csrfValidation.valid) {
+        if (!csrfValidation) {
           return { valid: false, error: 'Invalid CSRF token' }
         }
       }
@@ -54,7 +54,7 @@ export class ServerProtection {
         }
       }
       
-      return { valid: true, userId: validation.userId }
+      return { valid: true, userId: validation.discordId }
       
     } catch (error) {
       return { valid: false, error: 'Validation error' }

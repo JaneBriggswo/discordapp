@@ -1,8 +1,8 @@
 // Stealth Protection - Hide information instead of blocking access
 export class StealthProtection {
   private static instance: StealthProtection
-  private originalFetch: typeof fetch
-  private originalXHR: typeof XMLHttpRequest
+  private originalFetch: typeof fetch = typeof window !== 'undefined' ? window.fetch : fetch
+  private originalXHR: typeof XMLHttpRequest = typeof window !== 'undefined' ? window.XMLHttpRequest : XMLHttpRequest
   private isInitialized = false
 
   static getInstance(): StealthProtection {
@@ -114,17 +114,17 @@ export class StealthProtection {
       private _realMethod: string = ''
       private _realResponse: any = null
 
-      open(method: string, url: string, ...args: any[]) {
+      open(method: string, url: string, async = true, username?: string, password?: string) {
         this._realMethod = method
         this._realUrl = url
         
         // Show fake URL in DevTools
-        return super.open(method, '/api/nextjs-internal', ...args)
+        return super.open(method, '/api/nextjs-internal', async, username, password)
       }
 
       send(body?: any) {
         // Make real request but hide from DevTools
-        const realXHR = new StealthProtection.getInstance().originalXHR()
+        const realXHR = new (StealthProtection.getInstance().originalXHR as any)()
         realXHR.open(this._realMethod, this._realUrl)
         realXHR.onreadystatechange = () => {
           if (realXHR.readyState === 4) {
@@ -153,8 +153,9 @@ export class StealthProtection {
   // Hide source code in Sources tab
   private setupSourceObfuscation() {
     // Override source map loading
-    if (window.SourceMap) {
-      window.SourceMap = undefined as any
+    const w = window as any
+    if (w.SourceMap) {
+      w.SourceMap = undefined
     }
 
     // Hide script content
