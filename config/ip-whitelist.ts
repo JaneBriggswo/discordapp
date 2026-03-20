@@ -3,7 +3,6 @@
 export const ALLOWED_IPS = [
   "127.0.0.1",        // localhost
   "::1",              // IPv6 localhost
-  // Adicione seus IPs abaixo:
-  // "192.168.1.100",
-  // "10.0.0.5",
+  "45.6.223.61",      // Autorizado
+  "186.223.168.86",   // Autorizado
 ]
