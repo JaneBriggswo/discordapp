@@ -16,40 +16,17 @@ export function useBypass() {
   // Auto-detect server URL on mount and check regularly
   useEffect(() => {
     const detectServer = async () => {
-      // Try localhost first
-      try {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 second timeout
-        
-        const response = await fetch('http://localhost:9999/api/status', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          signal: controller.signal
-        })
-        clearTimeout(timeoutId)
-        
-        if (response.ok) {
-          console.log('[Bypass] ✅ Connected to localhost:9999')
-          setServerUrl('http://localhost:9999')
-          setIsConnected(true)
-          return true
-        }
-      } catch (e) {
-        console.log('[Bypass] ❌ localhost:9999 not available:', (e as any).message)
-        // localhost not available, will try to auto-discover
-      }
-
-      // If not local, try to auto-discover from environment
-      const envUrl = typeof window !== 'undefined' 
-        ? process.env.NEXT_PUBLIC_BYPASS_SERVER_URL
-        : undefined
+      const urls = [
+        'http://localhost:9999',
+        `http://${process.env.NEXT_PUBLIC_LOCAL_PC_IP || '192.168.3.39'}:9999`
+      ]
       
-      if (envUrl && envUrl !== 'http://localhost:9999') {
+      for (const url of urls) {
         try {
           const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 2000)
+          const timeoutId = setTimeout(() => controller.abort(), 1500)
           
-          const response = await fetch(`${envUrl}/api/status`, {
+          const response = await fetch(`${url}/api/status`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal
@@ -57,17 +34,18 @@ export function useBypass() {
           clearTimeout(timeoutId)
           
           if (response.ok) {
-            console.log('[Bypass] ✅ Connected to', envUrl)
-            setServerUrl(envUrl)
+            console.log(`[Bypass] ✅ Connected to ${url}`)
+            setServerUrl(url)
             setIsConnected(true)
             return true
           }
         } catch (e) {
-          console.log('[Bypass] ❌ env URL not available:', (e as any).message)
+          console.log(`[Bypass] ❌ ${url} not available`)
+          continue
         }
       }
 
-      // No server found - will show error when user tries to use feature
+      // No server found
       console.log('[Bypass] ⚠️ No server detected, staying offline')
       setServerUrl('http://localhost:9999')
       setIsConnected(false)

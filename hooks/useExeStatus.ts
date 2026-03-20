@@ -26,47 +26,37 @@ export function useExeStatus() {
       
       let isOnline = false
       let error = null
+      
+      // URLs para tentar: localhost (PC) e IP local (Celular)
+      const urls = [
+        'http://localhost:9999/api/status',
+        `http://${process.env.NEXT_PUBLIC_LOCAL_PC_IP || '192.168.3.39'}:9999/api/status`
+      ]
 
-      try {
-        console.log('[ExeStatus] 📤 Enviando request para localhost:9999/api/status...')
-        
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 segundo timeout
-        
-        const response = await fetch(`http://localhost:9999/api/status`, {
-          method: 'GET',
-          signal: controller.signal,
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
-          cache: 'no-store'
-        })
-        
-        clearTimeout(timeoutId)
-        
-        console.log('[ExeStatus] 📬 Resposta recebida:', response.status, response.statusText, 'Headers:', response.headers.get('content-type'))
-        
-        // ONLINE = resposta 200
-        if (response.status === 200 && response.ok) {
-          try {
-            const text = await response.text()
-            console.log('[ExeStatus] Response body:', text)
+      for (const url of urls) {
+        try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 2000)
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            signal: controller.signal,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          
+          clearTimeout(timeoutId)
+          
+          if (response.status === 200) {
+            console.log(`[ExeStatus] ✅ Servidor encontrado em: ${url}`)
             isOnline = true
-          } catch (e) {
-            // Mesmo que text falhe, status 200 = online
-            console.log('[ExeStatus] ✅ ONLINE - Status 200 OK')
-            isOnline = true
+            break
           }
-        } else {
-          console.log('[ExeStatus] ❌ OFFLINE - Status não é 200:', response.status)
-          isOnline = false
+        } catch (err) {
+          console.log(`[ExeStatus] ⚠️ Falhou em ${url}`)
+          continue
         }
-      } catch (err) {
-        error = (err as any).message
-        console.log('[ExeStatus] ❌ OFFLINE - Erro na requisição:', error, '(Tipo:', (err as any).name, ')')
-        isOnline = false
       }
 
       // Update status se ainda está mounted
