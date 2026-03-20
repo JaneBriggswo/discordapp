@@ -1,0 +1,107 @@
+{
+  "features": {
+    "rage_aim": {
+      "name": "RAGE AIM",
+      "description": "Aimbot de mira rápida",
+      "enabled": false,
+      "settings": {
+        "fov": {
+          "type": "number",
+          "min": 0,
+          "max": 360,
+          "default": 90,
+          "label": "FOV"
+        },
+        "smoothness": {
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "default": 50,
+          "label": "Suavidade"
+        },
+        "delay": {
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "default": 10,
+          "label": "Delay (ms)"
+        }
+      }
+    },
+    "legit_aim": {
+      "name": "LEGIT AIM",
+      "description": "Aimbot humano",
+      "enabled": false,
+      "settings": {
+        "fov": {
+          "type": "number",
+          "min": 0,
+          "max": 360,
+          "default": 90,
+          "label": "FOV"
+        },
+        "smoothness": {
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "default": 30,
+          "label": "Suavidade"
+        }
+      }
+    },
+    "esp": {
+      "name": "ESP",
+      "description": "Visualização de inimigos",
+      "enabled": false,
+      "settings": {
+        "box": {
+          "type": "boolean",
+          "default": true,
+          "label": "Caixa"
+        },
+        "skeleton": {
+          "type": "boolean",
+          "default": true,
+          "label": "Esqueleto"
+        },
+        "name": {
+          "type": "boolean",
+          "default": true,
+          "label": "Nome"
+        },
+        "distance": {
+          "type": "boolean",
+          "default": true,
+          "label": "Distância"
+        },
+        "health": {
+          "type": "boolean",
+          "default": true,
+          "label": "Saúde"
+        }
+      }
+    },
+    "chams": {
+      "name": "CHAMS",
+      "description": "Sobreposição visual",
+      "enabled": false,
+      "settings": {
+        "control_chams": {
+          "type": "boolean",
+          "default": false,
+          "label": "Control Chams"
+        },
+        "antena_m": {
+          "type": "boolean",
+          "default": false,
+          "label": "Antena M"
+        },
+        "antena_f": {
+          "type": "boolean",
+          "default": false,
+          "label": "Antena F"
+        }
+      }
+    }
+  }
+}
