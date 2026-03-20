@@ -9,6 +9,8 @@ import { SettingsCategory } from "@/components/categories/settings-category"
 import { NotificationSystem } from "@/components/notification-system"
 import { EmulatorMonitor } from "@/components/emulator-monitor"
 import { ServerConfig } from "@/components/server-config"
+import { IPAccessBlocker } from "@/components/ip-access-blocker"
+import { useIPWhitelist } from "@/hooks/useIPWhitelist"
 import { AppProvider } from "@/contexts/app-context"
 import { NotificationProvider, useNotifications } from "@/contexts/notification-context"
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
@@ -159,9 +161,18 @@ function Dashboard() {
 
 function AppContent() {
   const { notifications, removeNotification } = useNotifications()
+  const { isApproved, userIP, loading } = useIPWhitelist()
+
+  if (loading) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground">Verificando acesso...</div>
+      </div>
+    )
+  }
 
   return (
-    <>
+    <IPAccessBlocker isApproved={isApproved ?? true} userIP={userIP}>
       <Dashboard />
       <NotificationSystem 
         notifications={notifications}
@@ -169,7 +180,7 @@ function AppContent() {
       />
       <EmulatorMonitor />
       <ServerConfig />
-    </>
+    </IPAccessBlocker>
   )
 }
 
