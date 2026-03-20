@@ -1,8 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { AlertTriangle, Copy, Check } from "lucide-react"
-import { useState } from "react"
+import { AlertTriangle } from "lucide-react"
 
 interface IPAccessBlockerProps {
   userIP: string | null
@@ -11,18 +10,8 @@ interface IPAccessBlockerProps {
 }
 
 export function IPAccessBlocker({ userIP, isApproved, children }: IPAccessBlockerProps) {
-  const [copied, setCopied] = useState(false)
-
   if (isApproved) {
     return <>{children}</>
-  }
-
-  const copyIP = () => {
-    if (userIP) {
-      navigator.clipboard.writeText(userIP)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
   }
 
   return (
@@ -47,33 +36,12 @@ export function IPAccessBlocker({ userIP, isApproved, children }: IPAccessBlocke
         </p>
 
         {/* IP Info */}
-        <div className="bg-muted/50 border border-border rounded-lg p-4 mb-6">
+        <div className="bg-muted/50 border border-border rounded-lg p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
             Seu IP
           </p>
-          <div className="flex items-center justify-between">
-            <p className="font-mono text-sm font-bold text-foreground">
-              {userIP || "Carregando..."}
-            </p>
-            {userIP && (
-              <button
-                onClick={copyIP}
-                className="p-2 hover:bg-primary/20 rounded-lg transition-colors text-primary"
-              >
-                {copied ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Message */}
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-          <p className="text-sm text-blue-500">
-            Contate o administrador e compartilhe seu IP para obter acesso.
+          <p className="font-mono text-lg font-bold text-destructive text-center">
+            {userIP || "Carregando..."}
           </p>
         </div>
       </motion.div>

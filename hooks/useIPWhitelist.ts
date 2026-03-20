@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { ALLOWED_IPS } from "@/config/ip-whitelist"
 
 export function useIPWhitelist() {
   const [isApproved, setIsApproved] = useState<boolean | null>(null)
@@ -15,22 +16,17 @@ export function useIPWhitelist() {
 
         setUserIP(currentIP)
 
-        // Obter whitelist do localStorage
-        const stored = localStorage.getItem("ipWhitelist")
-        const whitelist: string[] = stored ? JSON.parse(stored) : []
-
-        // Se não há whitelist, considerar aprovado
-        if (whitelist.length === 0) {
-          setIsApproved(true)
-          return
-        }
-
         // Verificar se o IP está na whitelist
-        setIsApproved(whitelist.includes(currentIP))
+        const isAllowed = ALLOWED_IPS.includes(currentIP)
+        setIsApproved(isAllowed)
+
+        // Log para debug
+        console.log(`🔍 IP do usuário: ${currentIP}`)
+        console.log(`✅ Permitido: ${isAllowed}`)
       } catch (error) {
-        console.error("Erro ao verificar IP:", error)
-        // Em caso de erro, permitir acesso
-        setIsApproved(true)
+        console.error("❌ Erro ao verificar IP:", error)
+        // Em caso de erro, bloquear acesso por segurança
+        setIsApproved(false)
       } finally {
         setLoading(false)
       }

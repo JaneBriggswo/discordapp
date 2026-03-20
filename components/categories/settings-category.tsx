@@ -3,14 +3,12 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Shield, Settings, Lock } from "lucide-react"
-import { IPWhitelist } from "@/components/ip-whitelist"
+import { Shield, Settings } from "lucide-react"
 import { useAppContext } from "@/contexts/app-context"
 import { useNotifications } from "@/contexts/notification-context"
 
 export function SettingsCategory() {
   const [isLoadingBypass, setIsLoadingBypass] = useState(false)
-  const [showIPWhitelist, setShowIPWhitelist] = useState(false)
   const { state, updateSettings, updateVisuals } = useAppContext()
   const { addNotification } = useNotifications()
 
@@ -85,7 +83,7 @@ export function SettingsCategory() {
         </motion.div>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+      <div className="grid grid-cols-1 gap-4 md:gap-8">
         {/* Bypass Section */}
         <motion.div
           className="glass rounded-xl p-8 neon-border"
@@ -136,14 +134,6 @@ export function SettingsCategory() {
             </motion.div>
             
             <motion.div
-              className="flex items-center space-x-4"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-            </motion.div>
-            
-            <motion.div
               className="mt-8"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -160,93 +150,7 @@ export function SettingsCategory() {
             </motion.div>
           </div>
         </motion.div>
-
-        {/* IP Whitelist Section */}
-        <motion.div
-          className="glass rounded-xl p-8 neon-border"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="flex items-center space-x-3 mb-8">
-            <Lock className="w-6 h-6 text-primary" />
-            <h3 className="text-xl font-bold">Acesso</h3>
-          </div>
-          
-          <div className="space-y-6 bypass-text">
-            <motion.div
-              className="flex items-center space-x-4"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                1
-              </div>
-              <span className="text-lg">Clique em Gerenciar IPs</span>
-            </motion.div>
-            
-            <motion.div
-              className="flex items-center space-x-4"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                2
-              </div>
-              <span className="text-lg">Adicione IPs permitidos</span>
-            </motion.div>
-            
-            <motion.div
-              className="flex items-center space-x-4"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                3
-              </div>
-              <span className="text-lg">Acesso protegido</span>
-            </motion.div>
-            
-            <motion.div
-              className="mt-8"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <Button
-                variant="hack"
-                onClick={() => setShowIPWhitelist(true)}
-                className="w-full h-12 text-base font-mono"
-              >
-                GERENCIAR IPS
-              </Button>
-            </motion.div>
-          </div>
-        </motion.div>
       </div>
-
-      {/* IP Whitelist Modal */}
-      {showIPWhitelist && (
-        <motion.div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setShowIPWhitelist(false)}
-        >
-          <motion.div
-            onClick={(e) => e.stopPropagation()}
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-          >
-            <IPWhitelist onClose={() => setShowIPWhitelist(false)} />
-          </motion.div>
-        </motion.div>
-      )}
     </motion.div>
   )
 }
