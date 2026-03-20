@@ -60,7 +60,7 @@ export function IPWhitelist({ onClose }: IPWhitelistProps) {
       addNotification({
         title: "Campo vazio",
         message: "Digite um IP antes de adicionar",
-        type: "warning"
+        type: "error"
       })
       return
     }
@@ -78,7 +78,7 @@ export function IPWhitelist({ onClose }: IPWhitelistProps) {
       addNotification({
         title: "IP duplicado",
         message: `${ip} já está na whitelist`,
-        type: "warning"
+        type: "error"
       })
       return
     }
