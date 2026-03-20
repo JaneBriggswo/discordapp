@@ -48,7 +48,7 @@ export class ServerProtection {
       
       // Validate origin in production
       if (process.env.NODE_ENV === 'production' && origin) {
-        const allowedOrigins = [process.env.NEXT_PUBLIC_APP_URL, 'https://localhost:3000']
+        const allowedOrigins = [process.env.NEXT_PUBLIC_APP_URL, 'https://localhost:3000', 'https://discordapps.up.railway.app']
         if (!allowedOrigins.includes(origin)) {
           return { valid: false, error: 'Invalid origin' }
         }

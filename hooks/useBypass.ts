@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNotifications } from '@/contexts/notification-context'
 
 interface BypassResponse {
@@ -10,7 +10,54 @@ interface BypassResponse {
 export function useBypass() {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [serverUrl, setServerUrl] = useState('http://localhost:9999')
   const { addNotification } = useNotifications()
+
+  // Auto-detect server URL on mount
+  useEffect(() => {
+    const detectServer = async () => {
+      // Try localhost first
+      try {
+        const response = await fetch('http://localhost:9999/api/status', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        if (response.ok) {
+          setServerUrl('http://localhost:9999')
+          return
+        }
+      } catch (e) {
+        // localhost not available, will try to auto-discover
+      }
+
+      // If not local, try to auto-discover from environment
+      const envUrl = typeof window !== 'undefined' 
+        ? process.env.NEXT_PUBLIC_BYPASS_SERVER_URL
+        : undefined
+      
+      if (envUrl && envUrl !== 'http://localhost:9999') {
+        try {
+          const response = await fetch(`${envUrl}/api/status`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          if (response.ok) {
+            setServerUrl(envUrl)
+            return
+          }
+        } catch (e) {
+          // env URL not available
+        }
+      }
+
+      // No server found - will show error when user tries to use feature
+      setServerUrl('http://localhost:9999')
+    }
+
+    detectServer()
+  }, [])
+
+  const bypassServerUrl = serverUrl
 
   /**
    * Checa se Pink Bypass.exe está rodando
@@ -18,7 +65,10 @@ export function useBypass() {
   const checkConnection = useCallback(async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/bypass?action=status')
+      const response = await fetch(`${bypassServerUrl}/api/status`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      })
       
       if (response.ok) {
         setIsConnected(true)
@@ -31,7 +81,7 @@ export function useBypass() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [bypassServerUrl])
 
   /**
    * Envia comando para ativar função (RAGE AIM, ESP, etc)
@@ -47,15 +97,12 @@ export function useBypass() {
         }
       }
 
-      const response = await fetch('/api/bypass', {
+      const response = await fetch(`${bypassServerUrl}/api/activate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'activate',
-          params: {
-            feature: featureName,
-            config
-          }
+          feature: featureName,
+          config
         })
       })
 
@@ -92,14 +139,11 @@ export function useBypass() {
     try {
       setIsLoading(true)
 
-      const response = await fetch('/api/bypass', {
+      const response = await fetch(`${bypassServerUrl}/api/deactivate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'deactivate',
-          params: {
-            feature: featureName
-          }
+          feature: featureName
         })
       })
 
@@ -136,15 +180,12 @@ export function useBypass() {
     try {
       setIsLoading(true)
 
-      const response = await fetch('/api/bypass', {
-        method: 'PUT',
+      const response = await fetch(`${bypassServerUrl}/api/configure`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'configure',
-          params: {
-            feature: featureName,
-            config
-          }
+          feature: featureName,
+          config
         })
       })
 
