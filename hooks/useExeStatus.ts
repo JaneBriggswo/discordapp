@@ -24,11 +24,15 @@ export function useExeStatus() {
     const checkExeStatus = async () => {
       if (!isMountedRef.current) return
       
+      let isOnline = false
+      let error = null
+
       try {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 1500)
+        console.log('[ExeStatus] 📤 Enviando request para localhost:9999...')
         
-        // Chama direto a API do .exe na porta 9999
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 2000) // 2 segundo timeout
+        
         const response = await fetch(`http://localhost:9999/api/status?t=${Date.now()}`, {
           method: 'GET',
           signal: controller.signal,
@@ -40,23 +44,42 @@ export function useExeStatus() {
         
         clearTimeout(timeoutId)
         
-        if (isMountedRef.current) {
-          const isOnline = response.ok && response.status === 200
-          console.log('[ExeStatus] Check result:', isOnline ? '✅ ONLINE' : '❌ OFFLINE', 'Status:', response.status)
-          setStatus({
-            isOnline,
-            isLoading: false,
-            lastCheck: new Date()
-          })
+        console.log('[ExeStatus] 📬 Resposta recebida:', response.status, response.statusText)
+        
+        // ONLINE = resposta 200
+        if (response.status === 200 && response.ok) {
+          try {
+            const data = await response.json()
+            console.log('[ExeStatus] ✅ ONLINE - Data:', data)
+            isOnline = true
+          } catch (e) {
+            // Mesmo que JSON falhe, status 200 = online
+            console.log('[ExeStatus] ✅ ONLINE - Mas JSON inválido (ok, status 200)')
+            isOnline = true
+          }
+        } else {
+          console.log('[ExeStatus] ❌ OFFLINE - Status não é 200:', response.status)
+          isOnline = false
         }
-      } catch (error) {
-        console.log('[ExeStatus] Connection error:', (error as any).message, '- Staying OFFLINE')
-        if (isMountedRef.current) {
-          setStatus(prev => ({
-            isOnline: false,
-            isLoading: false,
-            lastCheck: new Date()
-          }))
+      } catch (err) {
+        error = (err as any).message
+        console.log('[ExeStatus] ❌ OFFLINE - Erro na requisição:', error)
+        isOnline = false
+      }
+
+      // Update status se ainda está mounted
+      if (isMountedRef.current) {
+        setStatus({
+          isOnline,
+          isLoading: false,
+          lastCheck: new Date()
+        })
+        
+        // Log visual no console
+        if (isOnline) {
+          console.log('[ExeStatus] 🟢 Status: ONLINE')
+        } else {
+          console.log('[ExeStatus] 🔴 Status: OFFLINE')
         }
       }
     }
@@ -64,10 +87,10 @@ export function useExeStatus() {
     // Check status imediatamente
     checkExeStatus()
 
-    // Check a cada 2 segundos
+    // Check a cada 5 segundos
     intervalRef.current = setInterval(() => {
       checkExeStatus()
-    }, 2000)
+    }, 5000)
 
     return () => {
       isMountedRef.current = false
