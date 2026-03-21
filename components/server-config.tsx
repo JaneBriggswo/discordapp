@@ -28,10 +28,15 @@ export function ServerConfig({ onConfiguredIP }: ServerConfigProps) {
     try {
       const response = await fetch(`http://${manualIP}:9999/api/status`, {
         method: 'GET',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         signal: AbortSignal.timeout(5000)
       })
 
-      if (response.ok) {
+      // mode: 'no-cors' retorna opaque response, então checamos type ao invés de ok
+      if (response.type === 'opaque' || response.ok) {
         localStorage.setItem('bypass_server_ip', manualIP)
         setTestStatus('success')
         onConfiguredIP?.(manualIP)
@@ -43,7 +48,8 @@ export function ServerConfig({ onConfiguredIP }: ServerConfigProps) {
       } else {
         setTestStatus('error')
       }
-    } catch {
+    } catch (error) {
+      console.error('[ServerConfig] Erro ao conectar:', error)
       setTestStatus('error')
     }
   }
