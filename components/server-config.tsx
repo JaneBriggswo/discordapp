@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Settings, Wifi, Zap } from "lucide-react"
 
@@ -8,10 +8,18 @@ interface ServerConfigProps {
   onConfiguredIP?: (ip: string) => void
 }
 
+const DEFAULT_LOCAL_IP = process.env.NEXT_PUBLIC_LOCAL_PC_IP || '192.168.3.39'
+
 export function ServerConfig({ onConfiguredIP }: ServerConfigProps) {
   const [showConfig, setShowConfig] = useState(false)
   const [manualIP, setManualIP] = useState('')
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
+
+  useEffect(() => {
+    // Carregar IP salvo do localStorage ou usar padrão
+    const savedIP = localStorage.getItem('bypass_server_ip')
+    setManualIP(savedIP || DEFAULT_LOCAL_IP)
+  }, [])
 
   const handleSaveIP = async () => {
     if (!manualIP.trim()) return
@@ -74,7 +82,7 @@ export function ServerConfig({ onConfiguredIP }: ServerConfigProps) {
           </label>
           <input
             type="text"
-            placeholder="192.168.1.100"
+            placeholder={DEFAULT_LOCAL_IP}
             value={manualIP}
             onChange={(e) => setManualIP(e.target.value)}
             className="w-full bg-background/50 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors"
@@ -108,7 +116,7 @@ export function ServerConfig({ onConfiguredIP }: ServerConfigProps) {
 
         <div className="text-xs text-muted-foreground bg-background/30 p-2 rounded border border-border/30">
           <p className="mb-1 font-semibold">💡 Dica:</p>
-          <p>Para acessar do celular, use o IP local do seu PC (ex: 192.168.1.100)</p>
+          <p>Para acessar do celular, use o IP local do seu PC (ex: {DEFAULT_LOCAL_IP})</p>
         </div>
       </div>
     </div>
