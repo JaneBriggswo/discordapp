@@ -8,6 +8,8 @@ export function QuickActions() {
   const [loading, setLoading] = useState(false)
   const [rageOn, setRageOn] = useState(false)
   const [legitOn, setLegitOn] = useState(false)
+  const [headshotOn, setHeadshotOn] = useState(false)
+  const [precisionOn, setPrecisionOn] = useState(false)
 
   const activateFeature = async (endpoint: string, name: string, isToggle: boolean = false, toggleFunction?: (val: boolean) => void) => {
     setLoading(true)
@@ -107,37 +109,71 @@ export function QuickActions() {
           </Button>
         </div>
 
-        {/* Headshot */}
-        <Button
-          onClick={() => activateFeature('/api/headshot/on', 'Headshot ativado')}
-          disabled={loading}
-          className="w-full h-9 text-sm bg-orange-600 hover:bg-orange-700"
-        >
-          {loading ? (
-            <>
-              <Zap className="w-3 h-3 mr-2 animate-spin" />
-              Ativando...
-            </>
-          ) : (
-            '🎯 HEADSHOT'
-          )}
-        </Button>
+        {/* Headshot Toggle */}
+        <div className="flex gap-2">
+          <Button
+            onClick={() => activateFeature('/api/headshot/on', 'Headshot ativado', true, setHeadshotOn)}
+            disabled={loading || headshotOn}
+            className="flex-1 h-9 text-sm bg-orange-600 hover:bg-orange-700"
+          >
+            {loading ? (
+              <>
+                <Zap className="w-3 h-3 mr-2 animate-spin" />
+                Ativando...
+              </>
+            ) : headshotOn ? (
+              '🟢 HEADSHOT ON'
+            ) : (
+              '🎯 HEADSHOT'
+            )}
+          </Button>
+          <Button
+            onClick={() => activateFeature('/api/headshot/off', 'Headshot desativado', true, () => setHeadshotOn(false))}
+            disabled={loading || !headshotOn}
+            className="flex-1 h-9 text-sm bg-gray-600 hover:bg-gray-700"
+          >
+            {loading ? (
+              <>
+                <Power className="w-3 h-3 mr-2 animate-spin" />
+              </>
+            ) : (
+              'OFF'
+            )}
+          </Button>
+        </div>
 
-        {/* Precision */}
-        <Button
-          onClick={() => activateFeature('/api/precision/on', 'Precision ativado')}
-          disabled={loading}
-          className="w-full h-9 text-sm bg-purple-600 hover:bg-purple-700"
-        >
-          {loading ? (
-            <>
-              <Zap className="w-3 h-3 mr-2 animate-spin" />
-              Ativando...
-            </>
-          ) : (
-            '💜 PRECISION'
-          )}
-        </Button>
+        {/* Precision Toggle */}
+        <div className="flex gap-2">
+          <Button
+            onClick={() => activateFeature('/api/precision/on', 'Precision ativado', true, setPrecisionOn)}
+            disabled={loading || precisionOn}
+            className="flex-1 h-9 text-sm bg-purple-600 hover:bg-purple-700"
+          >
+            {loading ? (
+              <>
+                <Zap className="w-3 h-3 mr-2 animate-spin" />
+                Ativando...
+              </>
+            ) : precisionOn ? (
+              '🟢 PRECISION ON'
+            ) : (
+              '💜 PRECISION'
+            )}
+          </Button>
+          <Button
+            onClick={() => activateFeature('/api/precision/off', 'Precision desativado', true, () => setPrecisionOn(false))}
+            disabled={loading || !precisionOn}
+            className="flex-1 h-9 text-sm bg-gray-600 hover:bg-gray-700"
+          >
+            {loading ? (
+              <>
+                <Power className="w-3 h-3 mr-2 animate-spin" />
+              </>
+            ) : (
+              'OFF'
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="text-xs text-muted-foreground mt-3 p-2 border border-border/30 rounded bg-background/30">
