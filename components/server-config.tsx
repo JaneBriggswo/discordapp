@@ -28,7 +28,7 @@ export function ServerConfig({ onConfiguredIP }: ServerConfigProps) {
     try {
       const response = await fetch(`http://${manualIP}:9999/api/status`, {
         method: 'GET',
-        signal: AbortSignal.timeout(3000)
+        signal: AbortSignal.timeout(5000)
       })
 
       if (response.ok) {
