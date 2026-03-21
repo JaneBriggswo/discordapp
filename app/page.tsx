@@ -9,6 +9,7 @@ import { SettingsCategory } from "@/components/categories/settings-category"
 import { NotificationSystem } from "@/components/notification-system"
 import { EmulatorMonitor } from "@/components/emulator-monitor"
 import { ServerConfig } from "@/components/server-config"
+import { QuickActions } from "@/components/quick-actions"
 import { IPAccessBlocker } from "@/components/ip-access-blocker"
 import { useIPWhitelist } from "@/hooks/useIPWhitelist"
 import { AppProvider } from "@/contexts/app-context"
@@ -180,6 +181,7 @@ function AppContent() {
       />
       <EmulatorMonitor />
       <ServerConfig />
+      <QuickActions />
     </IPAccessBlocker>
   )
 }
