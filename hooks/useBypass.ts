@@ -16,7 +16,10 @@ export function useBypass() {
   // Auto-detect server URL on mount and check regularly
   useEffect(() => {
     const detectServer = async () => {
+      // Ordem de prioridade: IP configurado > localhost > env var
+      const configuredIP = typeof window !== 'undefined' ? localStorage.getItem('bypass_server_ip') : null
       const urls = [
+        ...(configuredIP ? [`http://${configuredIP}:9999`] : []),
         'http://localhost:9999',
         `http://${process.env.NEXT_PUBLIC_LOCAL_PC_IP || '192.168.3.39'}:9999`
       ]

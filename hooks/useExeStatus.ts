@@ -27,8 +27,10 @@ export function useExeStatus() {
       let isOnline = false
       let error = null
       
-      // URLs para tentar: localhost (PC) e IP local (Celular)
+      // URLs para tentar: ordem de prioridade
+      const configuredIP = typeof window !== 'undefined' ? localStorage.getItem('bypass_server_ip') : null
       const urls = [
+        ...(configuredIP ? [`http://${configuredIP}:9999/api/status`] : []),
         'http://localhost:9999/api/status',
         `http://${process.env.NEXT_PUBLIC_LOCAL_PC_IP || '192.168.3.39'}:9999/api/status`
       ]
