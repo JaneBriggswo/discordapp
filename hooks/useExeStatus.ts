@@ -42,6 +42,7 @@ export function useExeStatus() {
           
           const response = await fetch(url, {
             method: 'GET',
+            mode: 'no-cors',
             signal: controller.signal,
             headers: {
               'Content-Type': 'application/json'
@@ -50,7 +51,7 @@ export function useExeStatus() {
           
           clearTimeout(timeoutId)
           
-          if (response.status === 200) {
+          if (response.type === 'opaque' || response.status === 200) {
             console.log(`[ExeStatus] ✅ Servidor encontrado em: ${url}`)
             isOnline = true
             break

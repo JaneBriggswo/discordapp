@@ -31,12 +31,13 @@ export function useBypass() {
           
           const response = await fetch(`${url}/api/status`, {
             method: 'GET',
+            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal
           })
           clearTimeout(timeoutId)
           
-          if (response.ok) {
+          if (response.type === 'opaque' || response.ok) {
             console.log(`[Bypass] ✅ Connected to ${url}`)
             setServerUrl(url)
             setIsConnected(true)
