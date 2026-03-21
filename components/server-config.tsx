@@ -26,20 +26,38 @@ export function ServerConfig({ onConfiguredIP }: ServerConfigProps) {
 
     setTestStatus('testing')
     try {
-      const response = await fetch(`http://${manualIP}:9999/api/status`, {
-        method: 'GET',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(5000)
-      })
-
-      // mode: 'no-cors' retorna opaque response, então checamos type ao invés de ok
-      if (response.type === 'opaque' || response.ok) {
-        localStorage.setItem('bypass_server_ip', manualIP)
+      // Remove :9999 if already included
+      const cleanIP = manualIP.replace(':9999', '').trim()
+      
+      // Tenta ambos: localhost primeiro (PC) e depois o IP digitado (celular/remoto)
+      const urlsToTry = [
+        { url: 'http://localhost:9999/api/status', ip: 'localhost' },
+        { url: `http://${cleanIP}:9999/api/status`, ip: cleanIP }
+      ]
+      
+      let successIP = null
+      for (const { url, ip } of urlsToTry) {
+        try {
+          const response = await fetch(url, {
+            method: 'GET',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(3000)
+          })
+          
+          if (response.type === 'opaque' || response.ok) {
+            successIP = ip
+            break
+          }
+        } catch (e) {
+          continue
+        }
+      }
+      
+      if (successIP) {
+        localStorage.setItem('bypass_server_ip', successIP)
         setTestStatus('success')
-        onConfiguredIP?.(manualIP)
+        onConfiguredIP?.(successIP)
         setTimeout(() => {
           setShowConfig(false)
           setTestStatus('idle')
